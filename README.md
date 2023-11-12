@@ -7,3 +7,5 @@ This complete UI has been created using PyQT and it serves as a way to manipulat
 - Last Window (**changes_applied_window.py**) will allow the user to stage and push the changes to the '.config' file, choose to go back to the first window and make more changes (this will create a temporary '.config' file) or simply exit and discard all changes.
 
 After the changes have been submitted, the terminal running the script will display a multiple messages related to the success of the tool changing the '.config' file and reloading Tractor while comparing the values to the ones that are currently live. 
+
+**Please note that for this UI to work in a different environment, a '.config' file is necessary as well as changing the paths required in the first window**
