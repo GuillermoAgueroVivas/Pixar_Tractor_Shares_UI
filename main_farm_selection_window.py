@@ -1,372 +1,376 @@
-#!/sw/bin/python
+#!/sw/pipeline/rendering/python3/venv/bin/python
 
-# This window is the Initial Window of the Farm UI
-# Created using PyQt5
-# Please only adjust values if totally sure of what you are doing!
-#
-# Created by Guillermo Aguero - Render TD
+""" 
+This window is the Initial Window of the Atomic Farm UI for Show Allocations.
+Created using QtPy
+Please only adjust values if totally sure of what you are doing!
+
+Created by Guillermo Aguero - Render TD
+
+Written in Python3.
+"""
 
 import sys
 import json
 import re
 from collections import OrderedDict
-from functools import partial
-from qtpy import QtWidgets, QtCore, QtGui
-from qtpy.QtWidgets import QApplication
+from qtpy import QtWidgets, QtGui
 
 # These are all the other windows being imported
-from windowsfarm_window import ui_WindowsFarm_MainWindow
-from linuxfarm_window import ui_LinuxFarm_MainWindow
 
 
-class ui_AtomicCartoonsFarm_MainWindow(object):
+class UiAtomicCartoonsAllocationsMainWindow(QtWidgets.QMainWindow):
+    """Main window class for the Atomic Farm UI for Show Allocations.
 
-    def setupUi(self, main_farm_selection_window):
-        """ Does the initial setup. The location of the main Config file and
-            where the temp file and backup files will be created are specified here.
-            Opens the Config file to be able to generate a list of all the Farm
-            sections while formatting the name. Sets the size of the window as
-            well as the style of how it looks. Sets the title of the window and
-            creates all the fonts utilized by the rest of the windows.
+    This class creates the main window of the Atomic Farm UI application using QtPy.
+    It handles the setup and display of UI components for farm selection and
+    configuration.
 
-               Parameters:
-                   main_farm_selection_window (window): Main generated QMainWindow.
+     Methods:
+        __init__(): Initializes the main window, loads configuration data, and
+        sets up UI components.
+        setup_ui(): Sets up the user interface components.
+        generate_farm_sections(): Generates and sorts a list of farm sections.
+        farm_selection_window_setup(): Sets up the main window for farm selection.
+        groupbox_creation(): Creates a group box for farm selection.
+        combo_box_creation(): Creates a combo box for farm selection.
+        label_creation(): Creates a label for instructions.
+        button_creation(): Creates a button for confirming farm selection.
+        open_windows_farm_window(farm_name): Opens the Windows Farm window based on selection.
+        open_linux_farm_window(farm_name, linux_farm_sections): Opens the Linux
+        Farm window based on selection.
+    """
+
+    def __init__(self):
+        """Initializes the main window for the Linux Farm application.
+
+        This method sets up various configuration paths, initializes UI components,
+        and loads the configuration data from a specified file.
+
+        Attributes:
+            config_file_path_name (str): Path to the main configuration file.
+            temp_folder (str): Path to the temporary folder where temp files are created.
+            backup_folder (str): Path to the backup folder where backup files are stored.
+
+        UI Components:
+            centralwidget (QWidget): Central widget of the main window.
+            farm_select_groupbox (QGroupBox): Group box for farm selection.
+            farm_select_push_button (QPushButton): Push button for confirming farm selection.
+            farm_select_combo_box (QComboBox): Combo box for selecting a farm.
+
+        Variables:
+            farm_sections (list): List to hold the sections of the farm.
+
+        Config Data:
+            contents_dict (OrderedDict): Dictionary containing the configuration data
+            loaded from the configuration file.
+
+        Fonts:
+            l_font (QFont): Large font for UI elements.
+            s_font (QFont): Small font for UI elements.
+
+        Calls:
+            setup_ui(): Sets up the user interface components.
         """
+
+        super().__init__()
 
         # These are the location of both the main Config file and where the temp
         # file and backup files will be created
 
-        config_file_path_name = '/sw/tractor/config/limits.config'
-        temp_folder = '/sw/tractor/config/tmp/'
-        backup_folder = '/sw/tractor/config/limits_backup/'
+        self.config_file_path_name = "/sw/tractor/config/limits.config"
+        self.temp_folder = "/sw/tractor/config/tmp/"
+        self.backup_folder = "/sw/tractor/config/limits_backup/"
 
-        # Opening the config file to be able to generate a list with Farm sections.
-        with open(config_file_path_name, 'r') as i:
+        # All Folders For Testing
+        # self.config_file_path_name = (
+        #     "/home/gaguero/Documents/testing_tools/limits.config"
+        # )
+        # self.temp_folder = "/home/gaguero/Documents/testing_tools/tmp/"
+        # self.backup_folder = "/home/gaguero/Documents/testing_tools/limits_backup/"
+
+        # Sections of the window
+        self.centralwidget = None
+        self.farm_select_groupbox = None
+        self.farm_select_push_button = None
+        self.farm_select_combo_box = None
+
+        # Variables
+        self.farm_sections = []
+
+        # Opening config file
+        with open(self.config_file_path_name, "r") as i:
             self.contents_dict = json.load(i, object_pairs_hook=OrderedDict)
-            # Gives visual error here but it runs without issues
 
-        # This is needed to translate the Python strings into a 'language' the
-        # UI from PyQt understands
-        _translate = QtCore.QCoreApplication.translate  # DO NOT CHANGE THIS
-        # Creating all fonts
-        self.create_fonts()
+        # Windows
+
+        # Fonts
+        self.l_font = QtGui.QFont(
+            "Cantarell", 14, QtGui.QFont.Bold, QtGui.QFont.StyleItalic
+        )
+        self.l_font.setUnderline(True)
+        self.s_font = QtGui.QFont("Cantarell", 11)
+        self.s_font.setWeight(QtGui.QFont.Thin)
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        """Sets up the user interface components.
+
+        This method calls various other methods to build and initialize all parts
+        of the UI, including generating farm sections, setting up the main window,
+        and creating various UI elements like group boxes, combo boxes, labels, and buttons.
+
+        Parameters:
+            self (object): The object instance.
+
+        Returns:
+            None
+        """
 
         # Building all parts of the UI
-        farm_sections = self.farm_sections()
+        self.generate_farm_sections()
+        self.farm_selection_window_setup()
+        self.groupbox_creation()
+        self.combo_box_creation()
+        self.label_creation()
+        self.button_creation()
 
-        farm_selection_window = \
-            self.farm_selection_window_setup(main_farm_selection_window, _translate)
+    def generate_farm_sections(self):
+        """Generates and sorts a list of farm sections.
 
-        farm_select_groupBox = self.groupBox_creation(_translate)
+        This method creates a list of all the farm sections from the configuration data,
+        filters them based on specified criteria, and sorts them in natural order.
 
-        farm_select_comboBox = \
-            self.combo_box_creation(_translate, farm_sections, farm_select_groupBox)
+        Parameters:
+            self (object): The object instance.
 
-        self.label_creation(_translate, farm_select_groupBox)
-
-        self.button_creation(_translate, farm_selection_window,
-                             farm_select_groupBox, farm_select_comboBox,
-                             config_file_path_name, temp_folder, backup_folder,
-                             farm_sections)
-
-        QtCore.QMetaObject.connectSlotsByName(farm_selection_window)
-
-    def create_fonts(self):
-        """ Creates the Large and Small fonts used throughout the window.
-
-            Parameters:
-                self: Main object.
-
-            Returns:
-                l_font (QFont): larger size font used for titles
-                s_font (QFont): smaller size font used for everything else.
+        Returns:
+            None
         """
-
-        self.l_font = QtGui.QFont()  # Larger Font for Titles
-        self.l_font.setFamily("Cantarell")
-        self.l_font.setPointSize(14)
-        self.l_font.setBold(True)
-        self.l_font.setItalic(True)
-        self.l_font.setUnderline(True)
-        self.s_font = QtGui.QFont()  # Smaller Font for most text
-        self.s_font.setFamily("Cantarell")
-        self.s_font.setPointSize(11)
-
-    def farm_sections(self):
-        """ This function generates a list of all farm sections from a given
-            dictionary, sorts them in a natural order, and returns the list.
-
-            Parameters:
-                self.contents_dict (dict): A dictionary containing all farm
-                sections and their contents
-
-            Returns:
-                farm_sections (list): A list of all farm sections that match
-                the included criteria and are sorted in natural order.
-        """
-
         # This generates a list of all farm sections
-        farm_sections = []
-        include = ['linuxfarm', '_windowsfarm']
-        for farm_section in self.contents_dict['Limits'].keys():
+        include = ["linuxfarm", "_windowsfarm"]
+        for farm_section in self.contents_dict["Limits"].keys():
             for word in include:
                 if word in farm_section:
-                    farm_sections.append(farm_section)  # IMPORTANT
+                    self.farm_sections.append(farm_section)  # IMPORTANT
 
         def check_if_digit(number):
             return int(number) if number.isdigit() else number
 
         def natural_keys(fs):  # Farm Sections
-            return [check_if_digit(number) for number in re.split(r'(\d+)', fs)]
+            return [check_if_digit(number) for number in re.split(r"(\d+)", fs)]
 
         # Using this to be able to properly sort the farm sections in the correct
         # order.
-        farm_sections.sort(key=natural_keys)
+        self.farm_sections.sort(key=natural_keys)
 
-        return farm_sections
+    def farm_selection_window_setup(self):
+        """This function sets up the farm selection window, including the size,
+        style, and title of the window, as well as centering it on the screen.
 
-    def farm_selection_window_setup(self, farm_selection_window, _translate):
-        """ This function sets up the farm selection window, including the size,
-            style, and title of the window, as well as centering it on the screen.
+        Parameters:
+            self (object): The object instance.
 
-            Parameters:
-                farm_selection_window (QMainWindow): The main window object that
-                the function will set up.
-                _translate (QTranslator): A function that returns a translated
-                version of a string.
-
-            Returns:
-                farm_selection_window (QMainWindow): The now set-up main window
-                object.
+        Returns:
+            None
         """
 
-        farm_selection_window.setObjectName("AtomicCartoonsFarmUI_MainWindow")
-        # Window Size can be adjusted here
-        farm_selection_window.setFixedSize(463, 182)
-        # Using this style sheet the theme can be changed
-        farm_selection_window.setStyleSheet("background-color: rgb(46, 52, 54);"
-                                            "\n""color: rgb(238, 238, 236);")
         # Title of the Main Window can be changed here.
-        farm_selection_window.setWindowTitle(_translate(
-            "AtomicCartoonsFarmUI_MainWindow", "Main Farm Selection Window"))
+        self.setWindowTitle("Main Farm Selection Window")
+        # Window Size can be adjusted here
+        self.setFixedSize(463, 182)
+        # Using this style sheet the theme can be changed
+        self.setStyleSheet(
+            """background-color: rgb(46, 52, 54);color: rgb(238, 238, 236);"""
+        )
 
-        self.centralwidget = QtWidgets.QWidget(farm_selection_window)
-        farm_selection_window.setCentralWidget(self.centralwidget)
+        self.centralwidget = QtWidgets.QWidget(self)
+        self.setCentralWidget(self.centralwidget)
 
         # This function centers the Window in the screen according to what
         # monitor the mouse is hovering over
-        def center(fsw):  # farm_selection_window
-            qr = fsw.frameGeometry()
-            screen = QApplication.desktop().screenNumber(
-                QApplication.desktop().cursor().pos())
-            cp = QApplication.desktop().screenGeometry(screen).center()
-            qr.moveCenter(cp)
-            fsw.move(qr.topLeft())
+        def center_window(window):
+            frame = window.frameGeometry()
+            screen = QtGui.QGuiApplication.screenAt(QtGui.QCursor().pos())
 
-        center(farm_selection_window)
+            if screen is None:
+                screen = QtGui.QGuiApplication.primaryScreen()
 
-        return farm_selection_window
+            frame.moveCenter(screen.geometry().center())
+            window.move(frame.topLeft())
 
-    def groupBox_creation(self, _translate):
-        """ Creates a group box widget for farm selection.
+        center_window(self)
 
-            Parameters:
-                self (QtWidgets.QGroupBox): The class object
-                _translate (QTranslator): A function that returns a translated
-                version of a string.
+    def groupbox_creation(self):
+        """This method initializes and configures the combo box used for selecting
+        a farm section, and populates it with farm sections.
 
-            Returns:
-                farm_select_groupBox (QtWidgets.QGroupBox): the group box for
-                farm selection.
+        Parameters:
+            self (object): The object instance.
+
+        Returns:
+            None
         """
-        farm_select_groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        farm_select_groupBox.setGeometry(QtCore.QRect(10, 10, 441, 161))
-        farm_select_groupBox.setFont(self.l_font)
         # Title of the Group Box
-        farm_select_groupBox.setTitle(
-            _translate("AtomicCartoonsFarmUI_MainWindow", "Farm Selection"))
+        self.farm_select_groupbox = QtWidgets.QGroupBox(
+            "Farm Selection", self.centralwidget
+        )
+        self.farm_select_groupbox.setGeometry(10, 10, 441, 161)
+        self.farm_select_groupbox.setFont(self.l_font)
 
-        return farm_select_groupBox
+    def combo_box_creation(self):
+        """This method initializes and configures the combo box used for
+        selecting a farm section, and populates it with farm sections.
 
-    def label_creation(self, _translate, farm_select_groupBox):
-        """ Creates a label with specified properties and text.
+        Parameters:
+            self (object): The object instance.
 
-            Parameters:
-                _translate (QTranslator): A function that returns a translated
-                version of a string.
-                farm_select_groupBox (QGroupBox): group box widget the label
-                will be added to.
-
-            Returns:
-                farm_select_label (QLabel): the created label widget
+        Returns:
+            None
         """
 
-        farm_select_label = QtWidgets.QLabel(farm_select_groupBox)
-        farm_select_label.setGeometry(QtCore.QRect(10, 40, 421, 61))
-        farm_select_label.setFont(self.s_font)
-        farm_select_label.setWordWrap(True)
-        farm_select_label.setObjectName("farm_select_label")
-        # Text inside the label can be changed here
-        farm_select_label.setText(
-            _translate("AtomicCartoonsFarmUI_MainWindow",
-                       "Utilizing the dropdown menu below, please select the "
-                       "portion of the Farm you would like to configure and then "
-                       "confirm your choice:"))
-
-        return farm_select_label
-
-    def combo_box_creation(self, _translate, farm_sections, farm_select_groupBox):
-        """ Creates a QComboBox widget and adds items to it from the given
-            farm sections list
-
-            Parameters:
-                _translate (QTranslator): A function that returns a translated
-                version of a string.
-                farm_sections (list): List of farm sections to be added as items
-                to the combo box.
-                farm_select_groupBox (QGroupBox): The groupbox where the combo
-                box will be added
-
-            Returns:
-                farm_select_comboBox (QComboBox): The created and configured
-                combo box widget
-        """
-
-        farm_select_comboBox = QtWidgets.QComboBox(farm_select_groupBox)
-        farm_select_comboBox.setGeometry(QtCore.QRect(10, 120, 201, 22))
-        farm_select_comboBox.setFont(self.s_font)
-        farm_select_comboBox.setObjectName("farm_select_comboBox")
-        # The color of the box can be changed here.
-        farm_select_comboBox.setStyleSheet('color : #A7F432')
+        self.farm_select_combo_box = QtWidgets.QComboBox(self.farm_select_groupbox)
+        self.farm_select_combo_box.setGeometry(10, 120, 201, 22)
+        self.farm_select_combo_box.setFont(self.s_font)
+        self.farm_select_combo_box.setStyleSheet("color : #A7F432")
 
         # Creating all the slots to be allocated in the Combo Box as well as
         # adding the titles
         index = 0
-        for farm_section in farm_sections:
-            farm_select_comboBox.addItem("")
-            if 'linux' in farm_section:
+        for farm_section in self.farm_sections:
+            if "linux" in farm_section:
                 capital_name = farm_section.capitalize()
-                farm_select_comboBox.setItemText(
-                    index, _translate("AtomicCartoonsFarmUI_MainWindow",
-                                      capital_name))
+                self.farm_select_combo_box.addItem(capital_name)
                 index += 1
             else:
-                capital_name = farm_section.split('_')
-                capital_name = capital_name[1].capitalize()
-                farm_select_comboBox.setItemText(
-                    index, _translate("AtomicCartoonsFarmUI_MainWindow",
-                                      capital_name))
+                capital_name = farm_section.split("_")[1].capitalize()
+                # capital_name = capital_name[1].capitalize()
+                # self.farm_select_combo_box.setItemText(index, capital_name)
+                self.farm_select_combo_box.addItem(capital_name)
                 index += 1
 
-        return farm_select_comboBox
+    def label_creation(self):
+        """Creates a label with specified properties and text.
 
-    def button_creation(self, _translate, farm_selection_window,
-                        farm_select_groupBox, farm_select_comboBox,
-                        config_file_path_name, temp_folder, backup_folder,
-                        farm_sections):
-        """Create and set up the button for confirming the farm selection
+        This method initializes and configures the label used to provide instructions
+        to the user regarding farm selection.
 
-            Parameters:
-                _translate (QTranslator): A function that returns a translated
-                version of a string.
-                farm_selection_window (QtWidgets.QMainWindow): the parent window
-                for the button.
-                farm_select_groupBox (QtWidgets.QGroupBox): the group box
-                containing the button.
-                farm_select_comboBox (QtWidgets.QComboBox): the combo box where
-                the selection is made.
-                config_file_path_name (str): path and name of the config file
-                temp_folder (str): path of the temp folder
-                backup_folder (str): path of the backup folder
-                farm_sections (list): these are all the farm sections coming
-                from the config file itself
+        Parameters:
+            self (object): The object instance.
 
-           Returns:
-               farm_select_pushButton (QtWidgets.QPushButton): the created button
+        Returns:
+            None
         """
 
-        farm_select_pushButton = QtWidgets.QPushButton(farm_select_groupBox)
-        farm_select_pushButton.setGeometry(QtCore.QRect(250, 120, 171, 22))
-        farm_select_pushButton.setFont(self.s_font)
-        farm_select_pushButton.setObjectName("farm_select_pushButton")
+        # Text inside the label can be changed here
+        farm_select_label = QtWidgets.QLabel(
+            "Utilizing the dropdown menu below, please select the "
+            "portion of the Farm you would like to configure and then "
+            "confirm your choice:",
+            self.farm_select_groupbox,
+        )
+        farm_select_label.setGeometry(10, 40, 421, 61)
+        farm_select_label.setFont(self.s_font)
+        farm_select_label.setWordWrap(True)
+
+    def button_creation(self):
+        """Creates and set up the button for confirming the farm selection.
+
+        Parameters:
+            self (object): The object instance.
+
+        Returns:
+            None
+        """
+
         # Text inside the button can be changed here
-        farm_select_pushButton.setText(
-            _translate("AtomicCartoonsFarmUI_MainWindow", "Confirm My Selection"))
+        self.farm_select_push_button = QtWidgets.QPushButton(
+            "Confirm My Selection", self.farm_select_groupbox
+        )
+        self.farm_select_push_button.setGeometry(250, 120, 171, 22)
+        self.farm_select_push_button.setFont(self.s_font)
 
         # IMPORTANT: This is what happens when the button is pressed to confirm selection
         # Opening the other windows according to the selection of the Combo Box
-        def farm_select_button_clicked(cb):  # Combo Box
-            current = cb.currentText()
-            if 'linux' in current.lower():
+        def farm_select_button_clicked():  # Combo Box
+            current = self.farm_select_combo_box.currentText()
+            if "linux" in current.lower():
 
                 linux_farm_sections = []
 
-                for section in farm_sections:
+                for section in self.farm_sections:
                     # Doing only linux since we want the option to 'apply all the
                     # same values across the board' just for the Linux Farm.
                     if "windows" not in section:
                         linux_farm_sections.append(section)
 
-                self.open_LinuxFarm_window(current.lower(),
-                                           config_file_path_name, temp_folder,
-                                           backup_folder, linux_farm_sections)
-            elif 'windows' in current.lower():
-                self.open_WindowsFarm_window('_{}'.format(current.lower()),
-                                             config_file_path_name, temp_folder,
-                                             backup_folder)
+                self.open_linux_farm_window(current.lower(), linux_farm_sections)
 
-        farm_select_pushButton.clicked.connect(partial(farm_select_button_clicked,
-                                                       farm_select_comboBox))
+            elif "windows" in current.lower():
+                self.open_windows_farm_window(f"_{current.lower()}")
 
-        farm_select_pushButton.clicked.connect(farm_selection_window.close)
+        self.farm_select_push_button.clicked.connect(farm_select_button_clicked)
+        self.farm_select_push_button.clicked.connect(self.close)
 
-    def open_WindowsFarm_window(self, farm_name, config_file_path_name,
-                                temp_folder, backup_folder):
+    def open_windows_farm_window(self, farm_name):
+        """This function creates a new window for the Windows farm and sets up
+        its UI.
 
-        """ This function creates a new window for the Windows farm and sets up
-            its UI.
+        Parameters:
+            self (object): The object instance.
 
-            Parameters:
-                farm_name (str): The name of the Windows farm
-                config_file_path_name (str): The path of the config file
-                temp_folder (str): The path of the temp folder
-                backup_folder (str): The path of the backup folder
-
-            Returns:
-                None (Creates a new window)
+        Returns:
+            None (Creates a new window)
         """
-        self.windowsFarm_window = QtWidgets.QMainWindow()
-        self.ui = ui_WindowsFarm_MainWindow()
-        self.ui.setupUi(self.windowsFarm_window, farm_name,
-                        config_file_path_name, temp_folder, backup_folder)
-        self.windowsFarm_window.show()
 
-    def open_LinuxFarm_window(self, farm_name, config_file_path_name,
-                              temp_folder, backup_folder, linux_farm_sections):
+        from windowsfarm_window import UiWindowsFarmMainWindow
 
-        """ This function creates a new window for the Linux farm and sets up its UI.
+        windows_farm = UiWindowsFarmMainWindow(
+            farm_name,
+            self.config_file_path_name,
+            self.temp_folder,
+            self.backup_folder,
+            [self.l_font, self.s_font],
+        )
 
-            Parameters:
-                farm_name (str): The name of the Linux farm
-                config_file_path_name (str): The path of the config file
-                temp_folder (str): The path of the temp folder
-                backup_folder (str): The path of the backup folder
-                linux_farm_sections (list): all Linux Farm sections currently in
-                the config file.
+        windows_farm.show()
+        self.close()
 
-            Returns:
-                None (Creates a new window)
+    def open_linux_farm_window(
+        self,
+        farm_name,
+        linux_farm_sections,
+    ):
+        """Creates and displays a new window for the Linux farm with the specified
+        farm name and sections, and sets up its user interface.
+
+        Parameters:
+            self (object): The object instance.
+            farm_name (str): Name of the Linux farm to be managed.
+            linux_farm_sections (dict): Dictionary containing the sections
+            of the Linux farm.
+
+        Returns:
+            None
         """
-        self.linuxFarm_window = QtWidgets.QMainWindow()
-        self.ui = ui_LinuxFarm_MainWindow()
-        self.ui.setupUi(self.linuxFarm_window, farm_name, config_file_path_name,
-                        temp_folder, backup_folder, linux_farm_sections)
-        self.linuxFarm_window.show()
+        from linuxfarm_window import UiLinuxFarmMainWindow
+
+        linux_farm = UiLinuxFarmMainWindow(
+            farm_name,
+            linux_farm_sections,
+            self.config_file_path_name,
+            self.temp_folder,
+            self.backup_folder,
+            [self.l_font, self.s_font],
+        )
+
+        linux_farm.show()
+        self.close()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    atomic_farm_selection_window = QtWidgets.QMainWindow()
-    ui = ui_AtomicCartoonsFarm_MainWindow()
-    ui.setupUi(atomic_farm_selection_window)
+    atomic_farm_selection_window = UiAtomicCartoonsAllocationsMainWindow()
     atomic_farm_selection_window.show()
     sys.exit(app.exec_())
