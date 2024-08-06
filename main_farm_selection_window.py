@@ -82,13 +82,6 @@ class UiAllocationsMainWindow(QtWidgets.QMainWindow):
         self.temp_folder = "/sw/tractor/config/tmp/"
         self.backup_folder = "/sw/tractor/config/limits_backup/"
 
-        # All Folders For Testing
-        # self.config_file_path_name = (
-        #     "/home/gaguero/Documents/testing_tools/limits.config"
-        # )
-        # self.temp_folder = "/home/gaguero/Documents/testing_tools/tmp/"
-        # self.backup_folder = "/home/gaguero/Documents/testing_tools/limits_backup/"
-
         # Sections of the window
         self.centralwidget = None
         self.farm_select_groupbox = None
