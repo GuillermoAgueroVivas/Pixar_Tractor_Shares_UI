@@ -1,7 +1,7 @@
 #!/sw/pipeline/rendering/python3/venv/bin/python
 
 """ 
-This window is the Initial Window of the Atomic Farm UI for Show Allocations.
+This window is the Initial Window of the UI for Show Allocations.
 Created using QtPy
 Please only adjust values if totally sure of what you are doing!
 
@@ -19,10 +19,10 @@ from qtpy import QtWidgets, QtGui
 # These are all the other windows being imported
 
 
-class UiAtomicCartoonsAllocationsMainWindow(QtWidgets.QMainWindow):
-    """Main window class for the Atomic Farm UI for Show Allocations.
+class UiAllocationsMainWindow(QtWidgets.QMainWindow):
+    """Main window class for the Farm UI for Show Allocations.
 
-    This class creates the main window of the Atomic Farm UI application using QtPy.
+    This class creates the main window of the Farm UI application using QtPy.
     It handles the setup and display of UI components for farm selection and
     configuration.
 
@@ -371,6 +371,6 @@ class UiAtomicCartoonsAllocationsMainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    atomic_farm_selection_window = UiAtomicCartoonsAllocationsMainWindow()
-    atomic_farm_selection_window.show()
+    farm_selection_window = UiAllocationsMainWindow()
+    farm_selection_window.show()
     sys.exit(app.exec_())
