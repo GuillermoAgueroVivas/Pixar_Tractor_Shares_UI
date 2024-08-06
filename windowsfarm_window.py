@@ -1,8 +1,8 @@
-#!/sw/pipeline/rendering/python3/venv/bin/python
+#!/usr/bin/python3
 
 """ 
 This window opens up when selected through the 'Farm_Selection_Window' of the
-Atomic Farm UI.
+Farm UI.
 Represents the Windows Farm as a whole.
 Created using QtPy
 Please only adjust values if totally sure of what you are doing!
@@ -23,9 +23,9 @@ from changes_confirmation_window import UiConfirmFarmChangesMainWindow
 
 
 class UiWindowsFarmMainWindow(QtWidgets.QMainWindow):
-    """Main window class for the Windowa Farm UI in the Atomic Farm application.
+    """Main window class for the Windowa Farm UI in the Farm application.
 
-    This window is opened through the 'Farm_Selection_Window' of the Atomic Farm UI
+    This window is opened through the 'Farm_Selection_Window' of the Farm UI
     and represents the Linux Farm section selected in the previous window.
     It is created using QyPy and provides an interface to adjust the allocation
     percentages for different shows on the Linux Farm.
@@ -564,9 +564,9 @@ class UiWindowsFarmMainWindow(QtWidgets.QMainWindow):
                 None
             """
 
-            from main_farm_selection_window import UiAtomicCartoonsAllocationsMainWindow
+            from main_farm_selection_window import UiAllocationsMainWindow
 
-            farm_selection_windows = UiAtomicCartoonsAllocationsMainWindow()
+            farm_selection_windows = UiAllocationsMainWindow()
             farm_selection_windows.show()
             self.close()
 
