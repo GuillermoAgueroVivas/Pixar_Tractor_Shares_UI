@@ -1,4 +1,4 @@
-#!/sw/pipeline/rendering/python3/venv/bin/python
+#!/usr/bin/python3
 
 """ 
 - This is the Changes Applied window of the Farm UI. Shows message saying
