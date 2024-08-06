@@ -1,7 +1,7 @@
-#!/sw/pipeline/rendering/python3/venv/bin/python
+#!/usr/bin/python3
 
 """ 
-This is the Changes Confirmation window of the Atomic Farm UI. Helps the user
+This is the Changes Confirmation window of the Farm UI. Helps the user
 see the changes to be made before they are applied.
 
 Created using PyQt5
@@ -423,8 +423,8 @@ class UiConfirmFarmChangesMainWindow(QtWidgets.QMainWindow):
         Returns:
             None
         """
-        from main_farm_selection_window import UiAtomicCartoonsAllocationsMainWindow
+        from main_farm_selection_window import UiAllocationsMainWindow
 
-        farm_selection_window = UiAtomicCartoonsAllocationsMainWindow()
+        farm_selection_window = UiAllocationsMainWindow()
         farm_selection_window.show()
         self.close()
