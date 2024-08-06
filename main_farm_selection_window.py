@@ -1,4 +1,4 @@
-#!/sw/pipeline/rendering/python3/venv/bin/python
+#!/usr/bin/python3
 
 """ 
 This window is the Initial Window of the UI for Show Allocations.
