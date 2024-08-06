@@ -1,7 +1,7 @@
 #!/sw/pipeline/rendering/python3/venv/bin/python
 
 """ 
-- This is the Changes Applied window of the Atomic Farm UI. Shows message saying
+- This is the Changes Applied window of the Farm UI. Shows message saying
 the changes made have been applied and asks if you would like to do more changes.
 - Created using PyQt5
 - Please only adjust values if totally sure of what you are doing!
@@ -385,7 +385,7 @@ class UiChangesAppliedMainWindow(QtWidgets.QMainWindow):
             None
         """
 
-        from main_farm_selection_window import UiAtomicCartoonsAllocationsMainWindow
+        from main_farm_selection_window import UiAllocationsMainWindow
 
-        farm_selection_window = UiAtomicCartoonsAllocationsMainWindow()
+        farm_selection_window = UiAllocationsMainWindow()
         farm_selection_window.show()
